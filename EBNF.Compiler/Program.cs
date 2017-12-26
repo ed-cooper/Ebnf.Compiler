@@ -156,7 +156,7 @@ namespace Ebnf.Compiler
                 }
                 else
                 {
-                    // There were syntax errors in the geenrated code,
+                    // There were syntax errors in the generated code,
                     // causing compiler errors
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("The followng compiler errors were found:");
