@@ -42,7 +42,7 @@ namespace Ebnf.Compiler
                     Console.WriteLine(string.Join("\r\n", args));
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(string.Join("\r\n",
-                        "Invalid number of arguments supplied, expected 2 arguments in form:",
+                        "Invalid number of arguments supplied, expected 3 arguments in form:",
                         "- Input file path",
                         "- Output file path",
                         "- Default namespace"));
