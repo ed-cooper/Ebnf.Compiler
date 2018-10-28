@@ -1,5 +1,5 @@
 # Ebnf.Compiler
-Converts EBNF statements to C#, and then compiles them into a DLL which can be referenced in applications.
+Converts Extended Backus-Naur Form statements to C#, and then compiles them into a DLL which can be referenced in applications.
 
 *Note: This project was created for educational purposes only. For a much more flexible and user friendly solution, I recommend looking at the [Antlr](http://www.antlr.org/) project.* 
 
