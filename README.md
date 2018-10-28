@@ -27,7 +27,7 @@ Within the generated library, you will find a class called `Validation`. This wi
 /// <param name="level">The internal level of recursion; starts at 0.</param>
 public static bool IsWholeNumber(string input, out string remainder, out Node parseTree, int level = 0)
 {
-    \\ ...
+    // ...
 }
 ```
 The summary will contain the EBNF rule corresponding to the method definition.
