@@ -21,7 +21,10 @@ namespace Ebnf.Compiler
         #region Regular Expressions
 
         // Finds non-essential data in Ebnf (whitespace, comments)
-        private static readonly Regex FindNonEssentialData = new Regex(@"\s+|\(\*.*\*\)");
+        private static readonly Regex FindNewLinesAndComments = new Regex(@"(\n|\r\n?)|\(\*.*\*\)");
+
+        // Finds spaces
+        private static readonly Regex FindSpaces = new Regex(@"\s+");
 
         // Finds separators between different definitions (excludes separators in square brackets)
         private static readonly Regex FindDefinitions = new Regex(@"\|(?![^\[]*\])");
@@ -62,9 +65,7 @@ namespace Ebnf.Compiler
             code.Add("\t{");
 
             // Get statements
-
-            // Remove new lines and split statements by semi-colon
-            string[] statements = rawData.Replace(Environment.NewLine, "").Split(new char[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] statements = SplitStatements(rawData);
 
             // Compile statements
 
@@ -98,6 +99,42 @@ namespace Ebnf.Compiler
             // Output data
 
             return code.ToArray();
+        }
+
+        /// <summary>
+        /// Takes a raw file and splits it into individual statements.
+        /// </summary>
+        /// <param name="rawData">The raw data from the file containing the EBNF statements.</param>
+        /// <returns>An array containing all the individual statements.</returns>
+        public static string[] SplitStatements(string rawData)
+        {
+            // Remove new lines and comments
+            string preproccessed = FindNewLinesAndComments.Replace(rawData, "");
+
+            List<string> statements = new List<string>();
+
+            int statementStart = 0; // The start of the current statement
+            bool insideLiteral = false; // Whether we are currently inside a literal
+
+            for (int i = 0; i < preproccessed.Length; i++)
+            {
+                // Check for beginning and end of literals
+                if (preproccessed[i] == '"')
+                {
+                    insideLiteral = !insideLiteral;
+                    continue;
+                }
+
+                // Check for end of statement
+                if (!insideLiteral && preproccessed[i] == ';')
+                {
+                    statements.Add(preproccessed.Substring(statementStart, i - statementStart));
+                    statementStart = i + 1;
+                }
+            }
+
+            // Remove new lines and split statements by semi-colon
+            return statements.ToArray();
         }
 
         /// <summary>
@@ -186,7 +223,7 @@ namespace Ebnf.Compiler
             // enclosed by quotation marks)
             for (int i = 0; i < parts.Length; i += 2)
             {
-                parts[i] = FindNonEssentialData.Replace(parts[i], "");
+                parts[i] = FindSpaces.Replace(parts[i], "");
             }
 
             // Then, re-join the segments to form the new statement
