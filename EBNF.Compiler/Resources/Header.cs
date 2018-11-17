@@ -7,5 +7,6 @@
  */
 
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 [assembly: System.CLSCompliant(true)]

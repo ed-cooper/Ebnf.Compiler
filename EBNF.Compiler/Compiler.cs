@@ -203,6 +203,39 @@ namespace Ebnf.Compiler
                         indentLevel++;
                         code.Add($"{new string('\t', 3 + indentLevel)}remainder = remainder.Substring({concatenation.Length - 2});");
                         break;
+                    case '!': // Regex Value
+                        
+                        code.Add($"var regex = new Regex({concatenation.Remove(0, 1)});");
+                        code.Add($"{new string('\t', 3 + indentLevel)}var match = regex.Match(remainder);");
+                        code.Add($"{new string('\t', 3 + indentLevel)}if (match.Success)");
+                        code.Add($"{new string('\t', 3 + indentLevel)}{{");
+                        indentLevel++;
+                        code.Add($"{new string('\t', 3 + indentLevel)}if (remainder.StartsWith(\" \"))");
+                        code.Add($"{new string('\t', 3 + indentLevel)}" + "{");
+                        indentLevel++;
+                        code.Add($"{new string('\t', 3 + indentLevel)}remainder = remainder.Remove(0, match.Groups[0].Value.Length + 2);");
+                        indentLevel--;
+                    code.Add($"{new string('\t', 3 + indentLevel)}" + "}");
+                        code.Add($"{new string('\t', 3 + indentLevel)}else");
+                        code.Add($"{new string('\t', 3 + indentLevel)}" + "{");
+                        indentLevel++;
+                        code.Add($"{new string('\t', 3 + indentLevel)}remainder = remainder.Remove(0, match.Groups[0].Value.Length);");
+                        indentLevel--;
+
+                    code.Add($"{new string('\t', 3 + indentLevel)}" + "}");
+
+                        code.Add($"{new string('\t', 3 + indentLevel)}parseTree.Value = match.Groups[0].Value;");
+                        code.Add($"{new string('\t', 3 + indentLevel)}return true;");
+
+                        // Close all nested if statements
+                        for (int i = indentLevel - 1; i >= 0; i--)
+                            code.Add($"{new string('\t', 3 + i)}}}");
+
+                        // Reset parseTree children if match was not found
+                        code.Add("\t\t\tparseTree.Children.Clear();");
+
+                        return;
+                        break;
                     case '[': // Optional (can be used 0 or 1 times)
                     {
                         // Use dependency function
@@ -292,8 +325,10 @@ namespace Ebnf.Compiler
         /// <param name="keyNameFile">TThe path to the SNK file used to sign the assembly.</param>
         public static CompilerResults CreateDll(string[] code, string filePath, string keyNameFile = "")
         {
-            // Create code provider to compile the dll
-            CSharpCodeProvider codeProvider = new CSharpCodeProvider();
+            var providerOptions = new Dictionary<string, string>();
+            providerOptions.Add("CompilerVersion", "v3.5");
+
+            var codeProvider = new CSharpCodeProvider(providerOptions);
 
             // Create the parameters to use for compiling
             CompilerParameters parameters = new CompilerParameters
@@ -310,6 +345,7 @@ namespace Ebnf.Compiler
 
             parameters.CompilerOptions =
                 $"/doc:\"{Path.GetDirectoryName(Path.GetFullPath(filePath))}\\{Path.GetFileNameWithoutExtension(filePath)}.xml\" /optimize";
+            parameters.ReferencedAssemblies.Add(typeof(Regex).Assembly.FullName);
 
             if (!string.IsNullOrEmpty(keyNameFile))
                 parameters.CompilerOptions += $" /keyfile:\"{keyNameFile}\"";
