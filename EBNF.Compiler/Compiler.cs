@@ -65,7 +65,7 @@ namespace Ebnf.Compiler
             code.Add("\t{");
 
             // Get statements
-            string[] statements = SplitStatements(rawData);
+            IEnumerable<string> statements = SplitStatements(rawData);
 
             // Compile statements
 
@@ -106,7 +106,7 @@ namespace Ebnf.Compiler
         /// </summary>
         /// <param name="rawData">The raw data from the file containing the EBNF statements.</param>
         /// <returns>An array containing all the individual statements.</returns>
-        public static string[] SplitStatements(string rawData)
+        private static IEnumerable<string> SplitStatements(string rawData)
         {
             // Remove new lines and comments
             string preproccessed = FindNewLinesAndComments.Replace(rawData, "");
@@ -134,7 +134,7 @@ namespace Ebnf.Compiler
             }
 
             // Remove new lines and split statements by semi-colon
-            return statements.ToArray();
+            return statements;
         }
 
         /// <summary>
@@ -314,12 +314,12 @@ namespace Ebnf.Compiler
         /// </summary>
         /// <param name="identifiers">All the Ebnf identifiers found, including any identifiers of dependency functions.</param>
         /// <param name="statements">The corresponding Ebnf statement to each identifier.</param>
-        private static IEnumerable<string> CreateNodeTypeEnum(IReadOnlyList<string> identifiers,
-            IReadOnlyList<string> statements)
+        private static IEnumerable<string> CreateNodeTypeEnum(IEnumerable<string> identifiers, IEnumerable<string> statements)
         {
             // Create list to contain C# code output
             List<string> output = new List<string>
             {
+                "",
                 "\t/// <summary>",
                 "\t/// Represents all the possible types of node in the parse tree.",
                 "\t/// </summary>",
@@ -327,15 +327,17 @@ namespace Ebnf.Compiler
                 "\t{"
             };
 
-            // Create enum header
-
-            // List enum items
-            for (int i = 0; i < identifiers.Count; i++)
+            // Get enumerators
+            IEnumerator<string> identifiersEnumerator = identifiers.GetEnumerator();
+            IEnumerator<string> statementsEnumerator = statements.GetEnumerator();
+            
+            // List each identifier
+            while (identifiersEnumerator.MoveNext() && statementsEnumerator.MoveNext())
             {
                 output.Add("\t\t/// <summary>");
-                output.Add($"\t\t/// {statements[i]}");
+                output.Add($"\t\t/// {statementsEnumerator.Current}");
                 output.Add("\t\t/// </summary>");
-                output.Add($"\t\t{identifiers[i]},");
+                output.Add($"\t\t{identifiersEnumerator.Current},");
             }
 
             // Enum footer
