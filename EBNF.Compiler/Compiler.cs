@@ -63,8 +63,8 @@ namespace Ebnf.Compiler
 
             // Get statements
 
-            // Filter non-essential data and split statements by semi-colon
-            string[] statements = FindNonEssentialData.Replace(rawData, "").Split(';');
+            // Remove new lines and split statements by semi-colon
+            string[] statements = rawData.Replace(Environment.NewLine, "").Split(new char[] {';'}, StringSplitOptions.RemoveEmptyEntries);
 
             // Compile statements
 
@@ -110,8 +110,11 @@ namespace Ebnf.Compiler
         private static IEnumerable<string> CompileEbnfStatement(string statement, out string identifier,
             string nodeType = "")
         {
+            // Sanitise statements
+            string sanitised = SanitiseStatement(statement);
+
             // Find position of the defining symbol, =, separating the meta identifier and the definitions list
-            int equalsPos = statement.IndexOf("=", StringComparison.Ordinal);
+            int equalsPos = sanitised.IndexOf("=", StringComparison.Ordinal);
 
             if (equalsPos == -1)
                 throw new ArgumentException($"Ebnf statement did not contain an equals symbol: '{statement}'");
@@ -119,7 +122,7 @@ namespace Ebnf.Compiler
             // Statement contains equals
 
             // Find meta identifier
-            identifier = statement.Substring(0, equalsPos);
+            identifier = sanitised.Substring(0, equalsPos);
 
             // Create initial list for code output
             List<string> output = new List<string>
@@ -138,7 +141,7 @@ namespace Ebnf.Compiler
             };
 
             // Find definitions list
-            string definitionsRaw = statement.Substring(equalsPos + 1);
+            string definitionsRaw = sanitised.Substring(equalsPos + 1);
 
             // Separate definitions
             string[] definitions = FindDefinitions.Split(definitionsRaw);
@@ -167,6 +170,27 @@ namespace Ebnf.Compiler
 
             // Return compiled code
             return output.ToArray();
+        }
+
+        /// <summary>
+        /// Sanitises all unnecessary characters from an EBNF statement for parsing.
+        /// </summary>
+        /// <param name="statement">The EBNF statement to sanitise.</param>
+        /// <returns>The sanitised EBNF statement.</returns>
+        private static string SanitiseStatement(string statement)
+        {
+            // Split string at quotation marks
+            string[] parts = statement.Split('"');
+
+            // Remove spaces from all segments at even array indexes (as these were the items that were not
+            // enclosed by quotation marks)
+            for (int i = 0; i < parts.Length; i += 2)
+            {
+                parts[i] = FindNonEssentialData.Replace(parts[i], "");
+            }
+
+            // Then, re-join the segments to form the new statement
+            return string.Join("\"", parts);
         }
 
         /// <summary>
