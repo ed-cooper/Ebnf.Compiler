@@ -1,0 +1,4 @@
+﻿Range = !"[a-z]+";
+keyword = "struct" | "enum";
+
+Struct = keyword, Range, ":";

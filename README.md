@@ -1,7 +1,7 @@
 # Ebnf.Compiler
 Converts Extended Backus-Naur Form statements to C#, and then compiles them into a DLL which can be referenced in applications.
 
-*Note: This project was created for educational purposes only. For a much more flexible and user friendly solution, I recommend looking at the [Antlr](http://www.antlr.org/) project.* 
+*Note: This project was created for educational purposes only. For a much more flexible and user friendly solution, I recommend looking at the [Antlr](http://www.antlr.org/) project.*
 
 ## Running the Compiler
 
@@ -52,9 +52,15 @@ All comments must start with `(*` and end with `*)`:
 Comments can be placed anywhere within the document and are stripped during compilation.
 
 ### Literals
-This implementation of EBNF does not support Regex. Therefore, all literals must be string values, surrounded by quotation marks:
+For simple Strings you can write:
 ```
 "String"
+```
+
+#### Regex Literal
+The new Version supports Regex Patterns. easily add a "!" before the quotes of the string.
+```
+!"[a-b]+"
 ```
 
 ### Equality
@@ -113,7 +119,7 @@ This is a sample EBNF file I have produced for testing the capability of the pro
 ```
 (* Sample EBNF statements for testing *)
 
-Signed Number = [Sign], Positive Number; 
+Signed Number = [Sign], Positive Number;
 Positive Number = Whole Number, [".", Whole Number];
 Whole Number = Digit, {Digit};
 Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
