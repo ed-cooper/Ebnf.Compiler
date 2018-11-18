@@ -206,7 +206,7 @@ namespace Ebnf.Compiler
             }
 
             // Return compiled code
-            return output.ToArray();
+            return output;
         }
 
         /// <summary>
