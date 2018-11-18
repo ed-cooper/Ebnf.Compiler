@@ -215,7 +215,7 @@ namespace Ebnf.Compiler
                         indentLevel++;
                         code.Add($"{new string('\t', 3 + indentLevel)}remainder = remainder.Remove(0, match.Groups[0].Value.Length + 2);");
                         indentLevel--;
-                    code.Add($"{new string('\t', 3 + indentLevel)}" + "}");
+                        code.Add($"{new string('\t', 3 + indentLevel)}}}");
                         code.Add($"{new string('\t', 3 + indentLevel)}else");
                         code.Add($"{new string('\t', 3 + indentLevel)}" + "{");
                         indentLevel++;
