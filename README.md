@@ -119,3 +119,6 @@ Whole Number = Digit, {Digit};
 Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 Sign = "+" | "-";
 ```
+
+## Contributions
+Please read [our contributions guidelines](CONTRIBUTING.md) before submitting any issues or pull requests.
